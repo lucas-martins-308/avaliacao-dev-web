@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu chat</title>
+    <link rel="stylesheet" href="{% static 'gemini/style.css' %}">
+</head>
+<body>
+    <form id="formulario" action="{% url 'enviar_mensagem' %}" method="POST">
+        {% csrf_token %}
+        <h2>Bem-vindo(a) à minha IA de ......</h2>
+        <textarea name="pergunta" id="pergunta" required></textarea>
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div id="mensagens"></div>
+
+    <script>
+        // Manipulação de DOM
+        let formulario = document.querySelector('#formulario');
+        let mensagens = document.querySelector('#mensagens');
+        let textarea = document.querySelector('#pergunta');
+        
+        formulario.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(formulario);
+
+            fetch(formulario.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                },
+                body: formData
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                mensagens.innerHTML += data.msg;
+
+                // Limpa o campo de texto após o envio
+                textarea.value = '';
+            });
+        });
+    </script>
+</body>
+</html>
